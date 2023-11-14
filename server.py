@@ -96,77 +96,175 @@ def teardown_request(exception):
 # see for routing: https://flask.palletsprojects.com/en/2.0.x/quickstart/?highlight=routing
 # see for decorators: http://simeonfranklin.com/blog/2012/jul/1/python-decorators-in-12-steps/
 #
+# @app.route('/')
+# def index():
+#   """
+#   request is a special object that Flask provides to access web request information:
+
+#   request.method:   "GET" or "POST"
+#   request.form:     if the browser submitted a form, this contains the data in the form
+#   request.args:     dictionary of URL arguments, e.g., {a:1, b:2} for http://localhost?a=1&b=2
+
+#   See its API: https://flask.palletsprojects.com/en/2.0.x/api/?highlight=incoming%20request%20data
+
+#   """
+
+#   # DEBUG: this is debugging code to see what request looks like
+#   print(request.args)
+
+
+#   #
+#   # example of a database query 
+#   #
+#   cursor = g.conn.execute(text("SELECT name FROM test"))
+#   g.conn.commit()
+
+#   # 2 ways to get results
+
+#   # Indexing result by column number
+#   names = []
+#   for result in cursor:
+#     names.append(result[0])  
+
+#   # Indexing result by column name
+#   names = []
+#   results = cursor.mappings().all()
+#   for result in results:
+#     names.append(result["name"])
+#   cursor.close()
+
+#   #
+#   # Flask uses Jinja templates, which is an extension to HTML where you can
+#   # pass data to a template and dynamically generate HTML based on the data
+#   # (you can think of it as simple PHP)
+#   # documentation: https://realpython.com/primer-on-jinja-templating/
+#   #
+#   # You can see an example template in templates/index.html
+#   #
+#   # context are the variables that are passed to the template.
+#   # for example, "data" key in the context variable defined below will be
+#   # accessible as a variable in index.html:
+#   #
+#   #     # will print: [u'grace hopper', u'alan turing', u'ada lovelace']
+#   #     <div>{{data}}</div>
+#   #
+#   #     # creates a <div> tag for each element in data
+#   #     # will print:
+#   #     #
+#   #     #   <div>grace hopper</div>
+#   #     #   <div>alan turing</div>
+#   #     #   <div>ada lovelace</div>
+#   #     #
+#   #     {% for n in data %}
+#   #     <div>{{n}}</div>
+#   #     {% endfor %}
+#   #
+#   context = dict(data = names)
+
+
+#   #
+#   # render_template looks in the templates/ folder for files.
+#   # for example, the below file reads template/index.html
+#   #
+#   # return render_template("index.html", **context)
+
+#   return render_template("index.html")
 @app.route('/')
 def index():
-  """
-  request is a special object that Flask provides to access web request information:
+    return render_template("index.html")
 
-  request.method:   "GET" or "POST"
-  request.form:     if the browser submitted a form, this contains the data in the form
-  request.args:     dictionary of URL arguments, e.g., {a:1, b:2} for http://localhost?a=1&b=2
+@app.route('/register_patient', methods=['GET', 'POST'])
+def register_patient():
+  if request.method == 'POST':
+    # add new patient to our databse
+    patient_name = request.form['patient_name']
+    dob = request.form['dob']
+    email = request.form['email']
+    username = request.form['username']
+    password = request.form['password']
 
-  See its API: https://flask.palletsprojects.com/en/2.0.x/api/?highlight=incoming%20request%20data
+    # need to modify the sql schema to general IDs automatically
+    try:
+      query = text("""INSERT INTO patient_assigned_account (Patient_Name, DateOfBirth, Email, Username, Password) VALUES (:patient_name, :dob, :email, :username, :password) RETURNING PatientID, UserID""")
+      result = g.conn.execute(query, patient_name=patient_name, dob=dob, email=email, username=username, password=password).fetchone()
+      g.conn.commit()
 
-  """
+      flash(f'Registration successful! Your Patient ID is {result[0]} and User ID is {result[1]}.', 'success')
+      return redirect('/login_patient')
+    except Exception as e:
+      print(e)
+      flash('An error occurred. Please try again.', 'error')
+      return redirect('/register_patient')
 
-  # DEBUG: this is debugging code to see what request looks like
-  print(request.args)
-
-
-  #
-  # example of a database query 
-  #
-  cursor = g.conn.execute(text("SELECT name FROM test"))
-  g.conn.commit()
-
-  # 2 ways to get results
-
-  # Indexing result by column number
-  names = []
-  for result in cursor:
-    names.append(result[0])  
-
-  # Indexing result by column name
-  names = []
-  results = cursor.mappings().all()
-  for result in results:
-    names.append(result["name"])
-  cursor.close()
-
-  #
-  # Flask uses Jinja templates, which is an extension to HTML where you can
-  # pass data to a template and dynamically generate HTML based on the data
-  # (you can think of it as simple PHP)
-  # documentation: https://realpython.com/primer-on-jinja-templating/
-  #
-  # You can see an example template in templates/index.html
-  #
-  # context are the variables that are passed to the template.
-  # for example, "data" key in the context variable defined below will be
-  # accessible as a variable in index.html:
-  #
-  #     # will print: [u'grace hopper', u'alan turing', u'ada lovelace']
-  #     <div>{{data}}</div>
-  #
-  #     # creates a <div> tag for each element in data
-  #     # will print:
-  #     #
-  #     #   <div>grace hopper</div>
-  #     #   <div>alan turing</div>
-  #     #   <div>ada lovelace</div>
-  #     #
-  #     {% for n in data %}
-  #     <div>{{n}}</div>
-  #     {% endfor %}
-  #
-  context = dict(data = names)
+  return render_template('register_patient.html')
 
 
-  #
-  # render_template looks in the templates/ folder for files.
-  # for example, the below file reads template/index.html
-  #
-  return render_template("index.html", **context)
+
+@app.route('/register_doctor', methods=['GET', 'POST'])
+def register_doctor():
+  if request.method == 'POST':
+    # add new doctor to our databse
+    doctor_name = request.form['doctor_name']
+    did = request.form['did']
+    specialty = request.form['specialty']
+    email = request.form['email']
+    username = request.form['username']
+    password = request.form['password']
+
+    # need to modify the sql schema to generate IDs automatically
+    try:
+      query = text("""INSERT INTO doctor_wksin_account (DepartmentID, Doctor_Name, Specialty, Email, Username, Password) VALUES (:DID, :doctor_name, :dob, :specialty, :email, :username, :password) RETURNING DoctorID, UserID""")
+      result = g.conn.execute(query, did=did, doctor_name=doctor_name, specialty=specialty, email=email, username=username, password=password).fetchone()
+      g.conn.commit()
+
+      flash(f'Registration successful! Your Doctor ID is {result[0]} and User ID is {result[1]}.', 'success')
+      return redirect('/login_doctor')
+    except Exception as e:
+      print(e)
+      flash('An error occurred. Please try again.', 'error')
+      return redirect('/register_doctor')
+
+  return render_template('register_doctor.html')
+
+
+
+@app.route('/login_patient', methods=['GET', 'POST'])
+def login_patient():
+  if request.method == 'POST':
+    return render_template('patient_dashboard.html')
+
+  return render_template('login_patient.html')
+
+
+
+@app.route('/login_doctor', methods=['GET', 'POST'])
+def login_doctor():
+  if request.method == 'POST':
+    return render_template('doctor_dashboard.html')
+
+  return render_template('login_doctor.html')
+
+
+@app.route('/patient_dashboard')
+def patient_dashboard():
+  # Fetch patient-specific information from the database
+  return render_template('patient_dashboard.html')
+
+
+@app.route('/doctor_dashboard')
+def doctor_dashboard():
+  # Fetch doctor-specific information from the database
+  return render_template('doctor_dashboard.html')
+
+
+@app.route('/schedule_appointment', methods=['GET', 'POST'])
+def schedule_appointment():
+  if request.method == 'POST':
+    # Insert appointment details into the database
+    return redirect('/patient_dashboard')
+
+  return render_template('schedule_appointment.html')
+
 
 #
 # This is an example of a different path.  You can see it at:
