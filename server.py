@@ -12,7 +12,7 @@ import os
   # accessible as a variable in index.html:
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
-from flask import Flask, request, render_template, g, redirect, Response, abort
+from flask import Flask, request, render_template, g, redirect, Response, abort, flash
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -186,7 +186,8 @@ def register_patient():
     # need to modify the sql schema to general IDs automatically
     try:
       query = text("""INSERT INTO patient_assigned_account (Patient_Name, DateOfBirth, Email, Username, Password) VALUES (:patient_name, :dob, :email, :username, :password) RETURNING PatientID, UserID""")
-      result = g.conn.execute(query, patient_name=patient_name, dob=dob, email=email, username=username, password=password).fetchone()
+      params = {'patient_name': patient_name, 'dob': dob, 'email': email, 'username': username, 'password': password}
+      result = g.conn.execute(query, params).fetchone()
       g.conn.commit()
 
       flash(f'Registration successful! Your Patient ID is {result[0]} and User ID is {result[1]}.', 'success')
@@ -214,7 +215,8 @@ def register_doctor():
     # need to modify the sql schema to generate IDs automatically
     try:
       query = text("""INSERT INTO doctor_wksin_account (DepartmentID, Doctor_Name, Specialty, Email, Username, Password) VALUES (:DID, :doctor_name, :dob, :specialty, :email, :username, :password) RETURNING DoctorID, UserID""")
-      result = g.conn.execute(query, did=did, doctor_name=doctor_name, specialty=specialty, email=email, username=username, password=password).fetchone()
+      params = {'did': did, 'doctor_name': doctor_name, 'specialty': specialty, 'email': email, 'username': username, 'password': password}
+      result = g.conn.execute(query, params).fetchone()
       g.conn.commit()
 
       flash(f'Registration successful! Your Doctor ID is {result[0]} and User ID is {result[1]}.', 'success')
@@ -231,7 +233,20 @@ def register_doctor():
 @app.route('/login_patient', methods=['GET', 'POST'])
 def login_patient():
   if request.method == 'POST':
-    return render_template('patient_dashboard.html')
+    username = request.form['username']
+    password = request.form['password']
+
+    # Query to check if the user exists and password is correct
+    query = text("SELECT * FROM patient_assigned_account WHERE Username = :username AND Password = :password")
+    result = g.conn.execute(query, username=username, password=password).fetchone()
+
+    if result:
+        # User exists and password is correct
+        return render_template('patient_dashboard.html')
+    else:
+        # User does not exist or password is incorrect
+        flash('Invalid username or password. Please try again or register.', 'error')
+        return redirect('/login_patient')
 
   return render_template('login_patient.html')
 
@@ -240,7 +255,20 @@ def login_patient():
 @app.route('/login_doctor', methods=['GET', 'POST'])
 def login_doctor():
   if request.method == 'POST':
-    return render_template('doctor_dashboard.html')
+    username = request.form['username']
+    password = request.form['password']
+
+    # Query to check if the user exists and password is correct
+    query = text("SELECT * FROM doctor_wksin_account WHERE Username = :username AND Password = :password")
+    result = g.conn.execute(query, username=username, password=password).fetchone()
+
+    if result:
+        # User exists and password is correct
+        return render_template('doctor_dashboard.html')
+    else:
+        # User does not exist or password is incorrect
+        flash('Invalid username or password. Please try again or register.', 'error')
+        return redirect('/login_doctor')
 
   return render_template('login_doctor.html')
 
