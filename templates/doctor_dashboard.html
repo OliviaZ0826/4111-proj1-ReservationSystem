@@ -1,11 +1,58 @@
-<html>
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <title>Doctor Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Management System - Doctor Dashboard</title>
 </head>
 <body>
-  <h1>Welcome to Your Dashboard</h1>
+    <h1>Doctor Dashboard</h1>
 
+    <!-- Display doctor-specific information retrieved from the database -->
+    <p>Welcome, Dr. {{ doctor_info.Doctor_Name }}!</p>
+
+    <!-- Dropdown for selecting a date -->
+    <label for="appointment_date">Select Date:</label>
+    <input type="date" id="appointment_date" name="appointment_date">
+
+    <!-- Dropdown for selecting appointment time -->
+    <label for="appointment_time">Select Appointment Time:</label>
+    <select id="appointment_time" name="appointment_time">
+        {% for appointment in appointments %}
+            <option value="{{ appointment.AppointmentID }}">{{ appointment.AppointmentDateTime }}</option>
+        {% endfor %}
+    </select>
+
+    <!-- Button to view patient information -->
+    <button type="button" onclick="viewPatientInfo()">View Patient Information</button>
+
+    <!-- Editable payment and due time for the specific patient -->
+    <label for="payment_amount">Payment Amount:</label>
+    <input type="text" id="payment_amount" name="payment_amount" value="{{ selected_patient_payment.Amount }}" readonly>
+    
+    <label for="due_date">Due Date:</label>
+    <input type="text" id="due_date" name="due_date" value="{{ selected_patient_payment.due }}" readonly>
+
+    <label for="edit_payment_amount">Edit Payment Amount:</label>
+    <input type="text" id="edit_payment_amount" name="edit_payment_amount">
+
+    <label for="edit_due_date">Edit Due Date:</label>
+    <input type="date" id="edit_due_date" name="edit_due_date">
+
+    <button type="button" onclick="editPayment()">Edit Payment</button>
+
+    <script>
+        function viewPatientInfo() {
+            // Add logic to fetch and display patient information based on the selected appointment
+            alert('Patient information displayed successfully!');
+        }
+
+        function editPayment() {
+            // Add logic to edit payment details for the specific patient
+            alert('Payment details edited successfully!');
+        }
+    </script>
+
+    <p>Logout</p>
 </body>
-
 </html>
