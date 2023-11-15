@@ -322,6 +322,31 @@ def login():
     abort(401)
     this_is_never_executed()
 
+@app.route('/patient_dashboard/<int:user_id>')
+def patient_dashboard(user_id):
+    # Retrieve patient-specific information from the database based on user_id
+    patient_info_query = text("SELECT * FROM patient_assigned_account WHERE UserID = :user_id")
+    patient_info = g.conn.execute(patient_info_query, user_id=user_id).fetchone()
+
+    # Retrieve insurance details for the patient
+    insurance_query = text("SELECT * FROM with_insurance WHERE PatientID = :user_id")
+    insurance_details = g.conn.execute(insurance_query, user_id=user_id).fetchone()
+
+    # Retrieve payment details for the patient
+    payment_query = text("SELECT * FROM resp_payment WHERE PatientID = :user_id")
+    payment_details = g.conn.execute(payment_query, user_id=user_id).fetchone()
+
+    # Retrieve doctor options for the dropdown
+    doctor_query = text("SELECT DoctorID, Doctor_Name FROM doctor_wksin_account")
+    doctors = g.conn.execute(doctor_query).fetchall()
+
+    # Retrieve time options for the dropdown (you may need to replace it with actual data)
+    time_options = ["9:00 AM", "10:00 AM", "11:00 AM", "1:00 PM", "2:00 PM"]
+
+    return render_template('patient_dashboard.html', patient_info=patient_info, insurance_details=insurance_details,
+                           payment_details=payment_details, doctors=doctors, time_options=time_options)
+
+
 
 if __name__ == "__main__":
   import click
