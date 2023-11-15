@@ -322,6 +322,7 @@ def login():
     abort(401)
     this_is_never_executed()
 
+# patient_dashboard
 @app.route('/patient_dashboard/<int:user_id>')
 def patient_dashboard(user_id):
     # Retrieve patient-specific information from the database based on user_id
@@ -345,6 +346,20 @@ def patient_dashboard(user_id):
 
     return render_template('patient_dashboard.html', patient_info=patient_info, insurance_details=insurance_details,
                            payment_details=payment_details, doctors=doctors, time_options=time_options)
+
+# Doctor Dashboard Route
+@app.route('/doctor_dashboard/<int:user_id>')
+def doctor_dashboard(user_id):
+    # Retrieve doctor-specific information from the database based on user_id
+    doctor_info_query = text("SELECT * FROM doctor_wksin_account WHERE UserID = :user_id")
+    doctor_info = g.conn.execute(doctor_info_query, user_id=user_id).fetchone()
+
+    # Retrieve doctor's appointments for the selected date (you may need to replace it with actual data)
+    appointments_query = text("SELECT * FROM Appointment WHERE DATE(AppointmentDateTime) = '2023-11-01'")
+    appointments = g.conn.execute(appointments_query).fetchall()
+
+    return render_template('doctor_dashboard.html', doctor_info=doctor_info, appointments=appointments)
+
 
 
 
