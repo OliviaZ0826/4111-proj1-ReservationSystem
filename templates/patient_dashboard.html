@@ -6,51 +6,94 @@
     <title>Hospital Management System - Patient Dashboard</title>
 </head>
 <body>
+    <a href="/">Home</a>
     <h1>Patient Dashboard</h1>
     
     <!-- Display patient-specific information retrieved from the database -->
-    <p>Welcome, [Patient Name]!</p>
+    <p>Welcome,  {{ patient_info[2] }}!</p>
 
-    <!-- Display read-only payment amount and due date -->
-    <label for="payment_amount">Payment Amount:</label>
-    <input type="text" id="payment_amount" name="payment_amount" value="[Payment Amount]" readonly>
-    <label for="due_date">Due Date:</label>
-    <input type="text" id="due_date" name="due_date" value="[Due Date]" readonly>
+    <div>
+        <h2>Profile</h2>
+        <p>Name: {{ patient_info[2] }}</p>
+        <p>Patient ID: {{ patient_info[0] }}</p>
+        <p>User ID: {{ patient_info[1] }}</p>
+        <p>Date of Birth: {{ patient_info[3] }}</p>
+        <p>Email: {{ patient_info[4] }}</p> 
+    </div>
 
-    <!-- Editable insurance details -->
-    <label for="insurance_details">Insurance Details:</label>
-    <input type="text" id="insurance_details" name="insurance_details" value="[Insurance Details]">
+    <div>
+        <h2>Insurance Information</h2>
+        {% if insurance_details %}
+            <table>
+                <tr>
+                    <th>Insurance ID</th>
+                    <th>Provider</th>
+                    <th>Coverage Details</th>
+                    <th>Action</th>
+                </tr>
+                {% for insurance in insurance_details %}
+                    <tr>
+                        <td>{{ insurance[0] }}</td>
+                        <td>{{ insurance[2] }}</td>
+                        <td>{{ insurance[3] }}</td>
+                        <td>
+                            <form action="{{ url_for('delete_insurance', insurance_id=insurance[0]) }}" method="post">
+                                <input type="submit" value="Delete">
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p>No insurance information available.</p>
+        {% endif %}
+        <form action="{{ url_for('add_insurance', user_id=patient_info[1]) }}" method="post">
+            <input type="text" name="InsuranceID" placeholder="Insurance ID">
+            <input type="text" name="company" placeholder="Company Name">
+            <input type="text" name="cover" placeholder="Coverage Details">
+            <input type="submit" value="Add Insurance">
+        </form>
+    </div>
 
-    <!-- Display user_id for the specific patient -->
-    <label for="user_id">User ID:</label>
-    <input type="text" id="user_id" name="user_id" value="[User ID]" readonly>
+    <div>
+        <h2>Payments Due</h2>
+        {% if payment_details %}
+            {% for payment in payment_details %}
+                <p>Payment ID: {{ payment[0] }} with Amount: {{ payment[1] }} due by {{ payment[3] }}</p>
+            {% endfor %}
+        {% else %}
+            <p>No payment information available.</p>
+        {% endif %}
+    </div>
 
-    <!-- Dropdown for selecting a doctor -->
-    <label for="doctor">Select Doctor:</label>
-    <select id="doctor" name="doctor">
-        <option value="1">Dr. Smith</option>
-        <option value="2">Dr. Johnson</option>
-        <!-- Add more doctor options based on the data from the database -->
-    </select>
 
-    <!-- Dropdown for selecting appointment time -->
-    <label for="appointment_time">Select Appointment Time:</label>
-    <select id="appointment_time" name="appointment_time">
-        <option value="9:00 AM">9:00 AM</option>
-        <option value="10:00 AM">10:00 AM</option>
-        <!-- Add more time options based on the available meeting times -->
-    </select>
+    <div>
+        <h2>Appointment</h2>
+        {% if app_info %}
+            <table>
+                <tr>
+                    <th>Doctor Name</th>
+                    <th>Department ID</th>
+                    <th>Doctor Email</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                </tr>
+                {% for app in app_info %}
+                    <tr>
+                        <td>{{ app[0] }}</td>
+                        <td>{{ app[1] }}</td>
+                        <td>{{ app[2] }}</td>
+                        <td>{{ app[3] }}</td>
+                        <td>{{ app[4] }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+            
+        {% else %}
+            <p>No Appointment information available.</p>
+        {% endif %}
+    </div>
 
-    <!-- Button to create an appointment -->
-    <button type="button" onclick="createAppointment()">Create Appointment</button>
-
-    <script>
-        function createAppointment() {
-            // Add logic to create an appointment based on the selected doctor and time
-            alert('Appointment created successfully!');
-        }
-    </script>
-
-    <p>Logout</p>
+    <a href="/login_patient">Logout</a>
 </body>
 </html>

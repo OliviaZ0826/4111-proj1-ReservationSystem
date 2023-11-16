@@ -1,19 +1,39 @@
 <html>
 <head>
     <title>Doctor Login</title>
+    <style>
+      .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+      }
+      .alert-success { background-color: #dff0d8; }
+      .alert-error { background-color: #f2dede; }
+    </style>
 </head>
 <body>
-    <h2>Doctor Login</h2>
-    <form method="post">
-      <label for="username">Username:</label>
-      <input type="text" id="username" name="username" required><br>
-  
-      <label for="password">Password:</label>
-      <input type="password" id="password" name="password" required><br>
-  
-      <input type="submit" value="Login">
-    </form>
+  <a href="/">Home</a>
+  <h2>Doctor Login</h2>
 
-    <a href="/register_doctor">Register</a>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form method="post">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required><br>
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required><br>
+
+    <input type="submit" value="Login">
+  </form>
+
+  <a href="/register_doctor">Register</a>
 </body>
 </html>

@@ -1,0 +1,58 @@
+<!--
+    <div>
+        <h2>Insurance Information</h2>
+        <p>Provider: {{ insurance.provider }}</p>
+        <p>Policy Number: {{ insurance.policy_number }}</p>
+    </div>
+    <div>
+        <h2>Payments Due</h2>
+        {% for payment in payments %}
+            <p>Amount: {{ payment.amount }} due by {{ payment.due_date }}</p>
+        {% endfor %}
+    </div>
+    <div>
+        <h2>Appointments</h2>
+        {% for appointment in appointments %}
+            <p>Appointment with Dr. {{ appointment.doctor_name }} on {{ appointment.date }}</p>
+        {% endfor %}
+    </div>
+
+    Display read-only payment amount and due date
+    <label for="payment_amount">Payment Amount:</label>
+    <input type="text" id="payment_amount" name="payment_amount" value="[Payment Amount]" readonly>
+    <label for="due_date">Due Date:</label>
+    <input type="text" id="due_date" name="due_date" value="[Due Date]" readonly>
+
+    <label for="insurance_details">Insurance Details:</label>
+    <input type="text" id="insurance_details" name="insurance_details" value="[Insurance Details]">
+
+    Display user_id for the specific patient
+    <label for="user_id">User ID:</label>
+    <input type="text" id="user_id" name="user_id" value="[User ID]" readonly>
+
+     Dropdown for selecting a doctor 
+    <label for="doctor">Select Doctor:</label>
+    <select id="doctor" name="doctor">
+        <option value="1">Dr. Smith</option>
+        <option value="2">Dr. Johnson</option>
+         Add more doctor options based on the data from the database 
+    </select>
+
+    -- Dropdown for selecting appointment time --
+    <label for="appointment_time">Select Appointment Time:</label>
+    <select id="appointment_time" name="appointment_time">
+        <option value="9:00 AM">9:00 AM</option>
+        <option value="10:00 AM">10:00 AM</option>
+        -- Add more time options based on the available meeting times --
+    </select>
+
+    -- Button to create an appointment --
+    <button type="button" onclick="createAppointment()">Create Appointment</button>
+
+    <script>
+        function createAppointment() {
+            // Add logic to create an appointment based on the selected doctor and time
+            alert('Appointment created successfully!');
+        }
+    </script>
+-->

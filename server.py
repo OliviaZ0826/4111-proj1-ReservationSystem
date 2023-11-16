@@ -13,11 +13,12 @@ import os
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response, abort, flash
+import os
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 
-
+app.secret_key = os.urandom(24)
 #
 # The following is a dummy URI that does not connect to a valid database. You will need to modify it to connect to your Part 2 database in order to use the data.
 #
@@ -214,8 +215,8 @@ def register_doctor():
 
     # need to modify the sql schema to generate IDs automatically
     try:
-      query = text("""INSERT INTO doctor_wksin_account (DepartmentID, Doctor_Name, Specialty, Email, Username, Password) VALUES (:DID, :doctor_name, :dob, :specialty, :email, :username, :password) RETURNING DoctorID, UserID""")
-      params = {'did': did, 'doctor_name': doctor_name, 'specialty': specialty, 'email': email, 'username': username, 'password': password}
+      query = text("""INSERT INTO doctor_wksin_account (DepartmentID, Doctor_Name, Specialty, Email, Username, Password) VALUES (:DID, :doctor_name, :specialty, :email, :username, :password) RETURNING DoctorID, UserID""")
+      params = {'DID': did, 'doctor_name': doctor_name, 'specialty': specialty, 'email': email, 'username': username, 'password': password}
       result = g.conn.execute(query, params).fetchone()
       g.conn.commit()
 
@@ -238,11 +239,13 @@ def login_patient():
 
     # Query to check if the user exists and password is correct
     query = text("SELECT * FROM patient_assigned_account WHERE Username = :username AND Password = :password")
-    result = g.conn.execute(query, username=username, password=password).fetchone()
+    result = g.conn.execute(query, {'username': username, 'password': password}).fetchone()
 
     if result:
         # User exists and password is correct
-        return render_template('patient_dashboard.html')
+        print(result)
+        user_id = result[1]
+        return redirect('/patient_dashboard/{}'.format(user_id))
     else:
         # User does not exist or password is incorrect
         flash('Invalid username or password. Please try again or register.', 'error')
@@ -260,7 +263,7 @@ def login_doctor():
 
     # Query to check if the user exists and password is correct
     query = text("SELECT * FROM doctor_wksin_account WHERE Username = :username AND Password = :password")
-    result = g.conn.execute(query, username=username, password=password).fetchone()
+    result = g.conn.execute(query, {'username': username, 'password': password}).fetchone()
 
     if result:
         # User exists and password is correct
@@ -271,18 +274,6 @@ def login_doctor():
         return redirect('/login_doctor')
 
   return render_template('login_doctor.html')
-
-
-@app.route('/patient_dashboard')
-def patient_dashboard():
-  # Fetch patient-specific information from the database
-  return render_template('patient_dashboard.html')
-
-
-@app.route('/doctor_dashboard')
-def doctor_dashboard():
-  # Fetch doctor-specific information from the database
-  return render_template('doctor_dashboard.html')
 
 
 @app.route('/schedule_appointment', methods=['GET', 'POST'])
@@ -302,50 +293,103 @@ def schedule_appointment():
 # Notice that the function name is another() rather than index()
 # The functions for each app.route need to have different names
 #
-@app.route('/another')
-def another():
-  return render_template("another.html")
+# @app.route('/another')
+# def another():
+#   return render_template("another.html")
 
 
-# Example of adding new data to the database
-@app.route('/add', methods=['POST'])
-def add(): 
-  name = request.form['name']
-  params_dict = {"name":name}
-  g.conn.execute(text('INSERT INTO test(name) VALUES (:name)'), params_dict)
-  g.conn.commit()
-  return redirect('/')
+# # Example of adding new data to the database
+# @app.route('/add', methods=['POST'])
+# def add(): 
+#   name = request.form['name']
+#   params_dict = {"name":name}
+#   g.conn.execute(text('INSERT INTO test(name) VALUES (:name)'), params_dict)
+#   g.conn.commit()
+#   return redirect('/')
 
 
-@app.route('/login')
-def login():
-    abort(401)
-    this_is_never_executed()
+# @app.route('/login')
+# def login():
+#     abort(401)
+#     this_is_never_executed()
 
 # patient_dashboard
 @app.route('/patient_dashboard/<int:user_id>')
 def patient_dashboard(user_id):
     # Retrieve patient-specific information from the database based on user_id
     patient_info_query = text("SELECT * FROM patient_assigned_account WHERE UserID = :user_id")
-    patient_info = g.conn.execute(patient_info_query, user_id=user_id).fetchone()
+    patient_info = g.conn.execute(patient_info_query,  {'user_id': user_id}).fetchone()
+
+    print(patient_info)
 
     # Retrieve insurance details for the patient
     insurance_query = text("SELECT * FROM with_insurance WHERE PatientID = :user_id")
-    insurance_details = g.conn.execute(insurance_query, user_id=user_id).fetchone()
+    insurance_details = g.conn.execute(insurance_query,  {'user_id': user_id}).fetchall()
+
+    print(insurance_details)
 
     # Retrieve payment details for the patient
     payment_query = text("SELECT * FROM resp_payment WHERE PatientID = :user_id")
-    payment_details = g.conn.execute(payment_query, user_id=user_id).fetchone()
+    payment_details = g.conn.execute(payment_query,  {'user_id': user_id}).fetchall()
 
     # Retrieve doctor options for the dropdown
     doctor_query = text("SELECT DoctorID, Doctor_Name FROM doctor_wksin_account")
     doctors = g.conn.execute(doctor_query).fetchall()
 
+    ID_query = text("""SELECT P.PatientID FROM patient_assigned_account P WHERE P.UserID = :user_id""")
+    patient_id = g.conn.execute(ID_query, {'user_id': user_id}).fetchone()
+    app_query = text("SELECT D.Doctor_Name, D.DepartmentID, D.Email, A.AppointmentDateTime, A.Status \
+                      FROM Holds H, Appointment A, doctor_wksin_account D\
+                      WHERE H.PatientID = :patient_id AND H.AppointmentID = A.AppointmentID \
+                      AND D.DoctorID = H.DoctorID")
+    app_info = g.conn.execute(app_query, {'patient_id': patient_id[0]}).fetchall()
+
     # Retrieve time options for the dropdown (you may need to replace it with actual data)
-    time_options = ["9:00 AM", "10:00 AM", "11:00 AM", "1:00 PM", "2:00 PM"]
+    time_options = ["9:00 AM", "10:00 AM", "11:00 AM", "1:00 PM", "2:00 PM", "3:00 PM"]
 
     return render_template('patient_dashboard.html', patient_info=patient_info, insurance_details=insurance_details,
-                           payment_details=payment_details, doctors=doctors, time_options=time_options)
+                           payment_details=payment_details, doctors=doctors, time_options=time_options, app_info=app_info)
+
+@app.route('/add_insurance/<int:user_id>', methods=['GET', 'POST'])
+def add_insurance(user_id):
+  if request.method == 'POST':
+    # add new patient to our databse
+    insurance_id = request.form['InsuranceID']
+    company = request.form['company']
+    cover = request.form['cover']
+
+    # need to modify the sql schema to general IDs automatically
+    try:
+      queryID = text("""SELECT P.PatientID FROM patient_assigned_account P WHERE P.UserID = :user_id""")
+      patient_id = g.conn.execute(queryID, {'user_id': user_id}).fetchone()
+
+      query = text("""INSERT INTO with_insurance (InsuranceID, PatientID, CompanyName, CoverageDetails) VALUES (:insurance_id, :patient_id, :company, :cover)""")
+      params = {'insurance_id': insurance_id, 'patient_id': patient_id[0], 'company': company, 'cover': cover}
+      g.conn.execute(query, params)
+      g.conn.commit()
+
+      return redirect('/patient_dashboard/{}'.format(user_id))
+    except Exception as e:
+      print(e)
+      return redirect('/add_insurance/{}'.format(user_id))
+
+  return render_template('add_insurance.html')
+
+@app.route('/delete_insurance/<int:insurance_id>', methods=['POST'])
+def delete_insurance(insurance_id):
+    queryID = text("""SELECT P.UserID FROM patient_assigned_account P, with_insurance I WHERE I.InsuranceID = :insurance_id AND I.PatientID = P.PatientID""")
+    user_id = g.conn.execute(queryID, {'insurance_id': insurance_id}).fetchone()
+    try:
+      delete_query = text("DELETE FROM with_insurance WHERE InsuranceID = :insurance_id")
+      g.conn.execute(delete_query, {'insurance_id': insurance_id})
+      g.conn.commit()
+    except Exception as e:
+      print(e)
+    
+    if user_id is not None:
+      return redirect('/patient_dashboard/{}'.format(user_id[0]))
+    else:
+      return redirect('/login_patient')
 
 # Doctor Dashboard Route
 @app.route('/doctor_dashboard/<int:user_id>')
