@@ -410,6 +410,14 @@ def doctor_dashboard(user_id):
     app_info = g.conn.execute(app_query, {'doctor_id': doctor_id[0]}).fetchall()
 
     print(app_info)
+    
+    patient_payment_query = text("""SELECT P.UserID, P.Patient_Name, RP.Amount, RP.due, RP.isPaid
+                                    FROM patient_assigned_account P
+                                    JOIN Holds H ON P.PatientID = H.PatientID
+                                    LEFT JOIN resp_payment RP ON P.PatientID = RP.PatientID
+                                    WHERE H.DoctorID = :doctor_id""")
+    patient_payment_info = g.conn.execute(patient_payment_query, {'doctor_id': doctor_id[0]}).fetchall()
+
 
     # Retrieve doctor's working location
     depart_id = doctor_info[2]
@@ -418,7 +426,32 @@ def doctor_dashboard(user_id):
 
     print(location)
 
-    return render_template('doctor_dashboard.html', doctor_info=doctor_info, app_info=app_info)
+    return render_template('doctor_dashboard.html', doctor_info=doctor_info, app_info=app_info,
+                           patient_payment_info = patient_payment_info)
+
+@app.route('/add_payment/<int:user_id>', methods=['POST'])
+def add_payment(user_id):
+  if request.method == 'POST':
+    amount = request.form['amount']
+    due = request.form['dueDate']
+    doctor_user_id = request.form['doctor_user_id']
+
+    # need to modify the sql schema to general IDs automatically
+    try:
+      queryID = text("""SELECT P.PatientID FROM patient_assigned_account P WHERE P.UserID = :user_id""")
+      patient_id = g.conn.execute(queryID, {'user_id': user_id}).fetchone()
+
+      query = text("""INSERT INTO resp_payment (Amount, PatientID, due, isPaid) VALUES (:amount, :patient_id, :due, :isPaid)""")
+      params = {'amount': amount, 'patient_id': patient_id[0], 'due': due, 'isPaid': False}
+      g.conn.execute(query, params)
+      g.conn.commit()
+
+      return redirect('/doctor_dashboard/{}'.format(doctor_user_id))
+    except Exception as e:
+      print(e)
+      return redirect('/add_payment/{}'.format(user_id))
+
+  return redirect('/doctor_dashboard/{}'.format(doctor_user_id))
 
 
 
