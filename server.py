@@ -267,7 +267,8 @@ def login_doctor():
 
     if result:
         # User exists and password is correct
-        return render_template('doctor_dashboard.html')
+        user_id = result[1]
+        return redirect('/doctor_dashboard/{}'.format(user_id))
     else:
         # User does not exist or password is incorrect
         flash('Invalid username or password. Please try again or register.', 'error')
@@ -318,7 +319,7 @@ def schedule_appointment():
 def patient_dashboard(user_id):
     # Retrieve patient-specific information from the database based on user_id
     patient_info_query = text("SELECT * FROM patient_assigned_account WHERE UserID = :user_id")
-    patient_info = g.conn.execute(patient_info_query,  {'user_id': user_id}).fetchone()
+    patient_info = g.conn.execute(patient_info_query, {'user_id': user_id}).fetchone()
 
     print(patient_info)
 
@@ -396,13 +397,28 @@ def delete_insurance(insurance_id):
 def doctor_dashboard(user_id):
     # Retrieve doctor-specific information from the database based on user_id
     doctor_info_query = text("SELECT * FROM doctor_wksin_account WHERE UserID = :user_id")
-    doctor_info = g.conn.execute(doctor_info_query, user_id=user_id).fetchone()
+    doctor_info = g.conn.execute(doctor_info_query, {'user_id': user_id}).fetchone()
 
-    # Retrieve doctor's appointments for the selected date (you may need to replace it with actual data)
-    appointments_query = text("SELECT * FROM Appointment WHERE DATE(AppointmentDateTime) = '2023-11-01'")
-    appointments = g.conn.execute(appointments_query).fetchall()
+    print(doctor_info)
 
-    return render_template('doctor_dashboard.html', doctor_info=doctor_info, appointments=appointments)
+    ID_query = text("""SELECT D.DoctorID FROM doctor_wksin_account D WHERE D.UserID = :user_id""")
+    doctor_id = g.conn.execute(ID_query, {'user_id': user_id}).fetchone()
+    app_query = text("SELECT P.Patient_Name, P.Email, I.InsuranceID, A.AppointmentDateTime, A.Status \
+                      FROM Holds H, Appointment A, patient_assigned_account P, with_insurance I \
+                      WHERE H.DoctorID = :doctor_id AND H.AppointmentID = A.AppointmentID \
+                      AND P.PatientID = H.PatientID AND I.PatientID = P.PatientID")
+    app_info = g.conn.execute(app_query, {'doctor_id': doctor_id[0]}).fetchall()
+
+    print(app_info)
+
+    # Retrieve doctor's working location
+    depart_id = doctor_info[2]
+    location_query = text("SELECT * FROM Department WHERE DepartmentID = :depart_id")
+    location = g.conn.execute(location_query, {'depart_id': depart_id}).fetchone()
+
+    print(location)
+
+    return render_template('doctor_dashboard.html', doctor_info=doctor_info, app_info=app_info)
 
 
 
