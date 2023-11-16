@@ -74,6 +74,7 @@
                 <tr>
                     <th>Doctor Name</th>
                     <th>Department ID</th>
+                    <th>Department Location</th>
                     <th>Doctor Email</th>
                     <th>Time</th>
                     <th>Status</th>
@@ -85,6 +86,7 @@
                         <td>{{ app[2] }}</td>
                         <td>{{ app[3] }}</td>
                         <td>{{ app[4] }}</td>
+                        <td>{{ app[5] }}</td>
                     </tr>
                 {% endfor %}
             </table>
@@ -92,6 +94,30 @@
         {% else %}
             <p>No Appointment information available.</p>
         {% endif %}
+    </div>
+
+    <div>
+        <h2>Book an Appointment</h2>
+        <form action="{{ url_for('book_appointment', user_id=patient_info[1]) }}" method="post">
+            <label for="doctor">Choose a Doctor:</label>
+            <select name="doctor_id" id="doctor">
+                {% for doctor in doctors %}
+                    <option value="{{ doctor[0] }}">{{ doctor[1] }}</option>
+                {% endfor %}
+            </select>
+    
+            <label for="appointment_date">Choose a Date:</label>
+            <input type="date" id="appointment_date" name="appointment_date" required>
+
+            <label for="appointment_time">Choose a Time:</label>
+            <select name="appointment_time" id="appointment_time">
+                {% for time in time_options %}
+                    <option value="{{ time }}">{{ time }}</option>
+                {% endfor %}
+            </select>
+    
+            <input type="submit" value="Book Appointment">
+        </form>
     </div>
 
     <a href="/login_patient">Logout</a>

@@ -14,6 +14,7 @@ from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response, abort, flash
 import os
+from datetime import datetime
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -277,15 +278,6 @@ def login_doctor():
   return render_template('login_doctor.html')
 
 
-@app.route('/schedule_appointment', methods=['GET', 'POST'])
-def schedule_appointment():
-  if request.method == 'POST':
-    # Insert appointment details into the database
-    return redirect('/patient_dashboard')
-
-  return render_template('schedule_appointment.html')
-
-
 #
 # This is an example of a different path.  You can see it at:
 #
@@ -339,10 +331,10 @@ def patient_dashboard(user_id):
 
     ID_query = text("""SELECT P.PatientID FROM patient_assigned_account P WHERE P.UserID = :user_id""")
     patient_id = g.conn.execute(ID_query, {'user_id': user_id}).fetchone()
-    app_query = text("SELECT D.Doctor_Name, D.DepartmentID, D.Email, A.AppointmentDateTime, A.Status \
-                      FROM Holds H, Appointment A, doctor_wksin_account D\
+    app_query = text("SELECT D.Doctor_Name, D.DepartmentID, B.Location, D.Email, A.AppointmentDateTime, A.Status \
+                      FROM Holds H, Appointment A, doctor_wksin_account D, Department B\
                       WHERE H.PatientID = :patient_id AND H.AppointmentID = A.AppointmentID \
-                      AND D.DoctorID = H.DoctorID")
+                      AND D.DoctorID = H.DoctorID AND B.DepartmentID = D.DepartmentID")
     app_info = g.conn.execute(app_query, {'patient_id': patient_id[0]}).fetchall()
 
     # Retrieve time options for the dropdown (you may need to replace it with actual data)
@@ -350,6 +342,35 @@ def patient_dashboard(user_id):
 
     return render_template('patient_dashboard.html', patient_info=patient_info, insurance_details=insurance_details,
                            payment_details=payment_details, doctors=doctors, time_options=time_options, app_info=app_info)
+
+@app.route('/book_appointment/<int:user_id>', methods=['POST'])
+def book_appointment(user_id):
+  doctor_id = request.form['doctor_id']
+  appointment_date = request.form['appointment_date']
+  appointment_time = request.form['appointment_time']
+  try: 
+    patient_id_query = text("SELECT PatientID FROM patient_assigned_account WHERE UserID = :user_id")
+    patient_id = g.conn.execute(patient_id_query, {'user_id': user_id}).fetchone()
+
+    appointment_datetime = datetime.strptime(f"{appointment_date} {appointment_time}", "%Y-%m-%d %H:%M %p")
+    formatted_appointment_datetime = appointment_datetime.strftime("%Y-%m-%d %H:%M:%S")
+
+    # Create a new appointment
+    insert_appointment_query = text("""INSERT INTO Appointment (AppointmentDateTime, Status) VALUES (:time, 'Scheduled')
+                                      RETURNING AppointmentID""")
+    appointment_id = g.conn.execute(insert_appointment_query, {'time': formatted_appointment_datetime}).fetchone()[0]
+    g.conn.commit()
+
+    # Create a new record in Holds table to link the patient, doctor, and appointment
+    insert_holds_query = text("""INSERT INTO Holds (PatientID, DoctorID, AppointmentID) VALUES (:patient_id, :doctor_id, :appointment_id)""")
+    g.conn.execute(insert_holds_query, {'patient_id': patient_id[0], 'doctor_id': doctor_id, 'appointment_id': appointment_id})
+    g.conn.commit()
+  except Exception as e:
+    print(e) 
+
+
+  return redirect('/patient_dashboard/{}'.format(user_id))
+
 
 @app.route('/add_insurance/<int:user_id>', methods=['GET', 'POST'])
 def add_insurance(user_id):
