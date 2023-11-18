@@ -45,10 +45,13 @@ The Patient Dashboard is designed to provide patients with a user-friendly inter
 
 Display Patient Information: 
       Patient-specific information is retrieved from the database and dynamically displayed on the page. Information such as patient name, ID, date of birth, and email is presented.
+      
 Insurance Information:
       The page lists insurance details retrieved from the database, including Insurance ID, provider, and coverage details. Patients can add new insurance information through a form, and the input is used to update the database.
+      
 Payments Due:
       Upcoming payment details are fetched from the database and displayed. No direct database operations are performed on this page.
+      
 Appointments:
       Appointment information is retrieved from the database and displayed in a table format. Patients can book new appointments through a form, and the form inputs are used to update the database.
 
@@ -57,9 +60,11 @@ The Doctor Dashboard is intended for doctors to manage their profile, view upcom
 
 Display Doctor Information:
       Doctor-specific details are retrieved from the database and displayed, including the doctor's name, specialty, ID, user ID, and email.
+      
 Appointments:
       Upcoming appointments with patient details are fetched from the database and displayed in a table. No direct database operations are performed on this page.
-Patient Payments:**
+      
+Patient Payments:
       Payment information for patients is retrieved from the database and presented in a table. Doctors can add new payment information through a form, and the form inputs are used to update the database.
 
 
