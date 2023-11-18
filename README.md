@@ -26,7 +26,7 @@ Doctors are able to visualize their schedules and patient appointments in a dash
 
 ## The parts that we choose not to use in Part 3:
 
-Patient Interaction: During the payment process, patients are allowed to make payments through the platform linked with their insurance information conveniently.
+Patient Interaction: During the payment process, patients are allowed to make payments through the platform linked with their insurance information conveniently. Also, we do not include pertinent medical history because those information should be asked during the appointment time and sometimes it is private to the patient so that we decide not to include in our patient profile.
 Doctor Interaction: None.
 
 
@@ -40,10 +40,27 @@ Doctor can modify the payment ammount for the patient while patient can only see
 
 ## Two chosen web pages that are the most interesting in Part 3:
 
-1
+### 1 Patient dashboard
+The Patient Dashboard is designed to provide patients with a user-friendly interface to view their personal information, insurance details, upcoming payments, and appointment information. 
 
-2
+Display Patient Information: 
+      Patient-specific information is retrieved from the database and dynamically displayed on the page. Information such as patient name, ID, date of birth, and email is presented.
+Insurance Information:
+      The page lists insurance details retrieved from the database, including Insurance ID, provider, and coverage details. Patients can add new insurance information through a form, and the input is used to update the database.
+Payments Due:
+      Upcoming payment details are fetched from the database and displayed. No direct database operations are performed on this page.
+Appointments:
+      Appointment information is retrieved from the database and displayed in a table format. Patients can book new appointments through a form, and the form inputs are used to update the database.
 
+### 2 Doctor dashboard
+The Doctor Dashboard is intended for doctors to manage their profile, view upcoming appointments, and handle patient payment information.
+
+Display Doctor Information:
+      Doctor-specific details are retrieved from the database and displayed, including the doctor's name, specialty, ID, user ID, and email.
+Appointments:
+      Upcoming appointments with patient details are fetched from the database and displayed in a table. No direct database operations are performed on this page.
+Patient Payments:**
+      Payment information for patients is retrieved from the database and presented in a table. Doctors can add new payment information through a form, and the form inputs are used to update the database.
 
 
 ## Usage of the AI tools in Part 3:
