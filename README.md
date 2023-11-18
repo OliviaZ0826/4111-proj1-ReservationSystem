@@ -4,7 +4,10 @@
 
 ### URL of the app:?????
 
+### PostgreSQL account: zy2605
+
 This repository contains a simple web server example developed for Columbia University's COMS W4111.001 Introduction to Databases course. The web server is built using Flask, a Python web framework, and it demonstrates basic interactions with a PostgreSQL database.
+
 
 ## Our original proposal in Part 1:
 
@@ -14,6 +17,7 @@ During the payment process, patients are allowed to make payments through the pl
 
 Doctor Interaction:
 Doctors are able to visualize their schedules and patient appointments in a dashboard after login. This feature ensures that they remain organized and informed about their clinical commitments. In addition, doctors also have access to comprehensive patient information, including medical records and insurance details, enabling them to provide personalized care.
+
 
 ## The parts we are achieved in Part 3:
 
@@ -26,17 +30,14 @@ Doctors are able to visualize their schedules and patient appointments in a dash
 
 ## The parts that we choose not to use in Part 3:
 
-Patient Interaction: During the payment process, patients are allowed to make payments through the platform linked with their insurance information conveniently. Also, we do not include pertinent medical history because those information should be asked during the appointment time and sometimes it is private to the patient so that we decide not to include in our patient profile.
+Patient Interaction: During the payment process, patients are allowed to make payments through the platform linked with their insurance information conveniently. For patient, we find it hard to implement payment through the platform which is not a part of our course's focus. Also, we do not include pertinent medical history because those information should be asked during the appointment time and sometimes it is private to the patient so that we decide not to include in our patient profile.
 Doctor Interaction: None.
 
-
-## Reason: 
-
-For patient, we find it hard to implement payment through the platform which is not a part of our course's focus.
 
 ## The parts that are not a part of our original proposal: 
 
 Doctor can modify the payment ammount for the patient while patient can only see the deadline of pay the payment and payment ammount. 
+
 
 ## Two chosen web pages that are the most interesting in Part 3:
 
