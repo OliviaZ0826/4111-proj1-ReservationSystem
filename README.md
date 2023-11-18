@@ -1,22 +1,38 @@
-# 4111-proj1-ReservationSystem
+## 4111-proj1-ReservationSystem
 
-Hospital Reservation System
+#Hospital Reservation System
 
-Contributers: Lanyue Zhang, Zining Yin
+#Contributers: Lanyue Zhang, Zining Yin
 
 This repository contains a simple web server example developed for Columbia University's COMS W4111.001 Introduction to Databases course. The web server is built using Flask, a Python web framework, and it demonstrates basic interactions with a PostgreSQL database.
 
-URL of the app:?????
+#URL of the app:?????
 
-A description of the parts of our original proposal in Part 1:
+#A description of the parts of our original proposal in Part 1:
+
+Patient Interaction:
+Patients will first register a user account for the reservation system. During this registration process, they will provide personal details such as their name, date of birth, email, pertinent medical history and insurance. Then patients will get their unique patient id. After that, patients can search for doctors based on department, specialty and proceed to schedule appointments according to their preferences. Furthermore, patients can keep track of their appointments, with access to comprehensive details, including the doctor's name, available appointment time, and status.
+During the payment process, patients are allowed to make payments through the platform linked with their insurance information conveniently.
+Doctor Interaction:
+Doctors are able to visualize their schedules and patient appointments in a dashboard after login. This feature ensures that they remain organized and informed about their clinical commitments. In addition, doctors also have access to comprehensive patient information, including medical records and insurance details, enabling them to provide personalized care.
 
 The parts we are achieved:
 
+Patient Interaction:
+Patients will first register a user account for the reservation system. During this registration process, they will provide personal details such as their name, date of birth, email, pertinent medical history and insurance. Then patients will get their unique patient id. After that, patients can search for doctors based on department, specialty and proceed to schedule appointments according to their preferences. Furthermore, patients can keep track of their appointments, with access to comprehensive details, including the doctor's name, available appointment time, and status.
+Doctor Interaction:
+Doctors are able to visualize their schedules and patient appointments in a dashboard after login. This feature ensures that they remain organized and informed about their clinical commitments. In addition, doctors also have access to comprehensive patient information, including medical records and insurance details, enabling them to provide personalized care.
+
+
 The parts that we choose not to use:
 
-Reason:
+Patient Interaction: During the payment process, patients are allowed to make payments through the platform linked with their insurance information conveniently.
+Doctor Interaction: None.
 
-The parts that are not a part of our original proposal:
+
+Reason: For patient, we find it hard to implement payment through the platform which is not a part of our course's focus.
+
+The parts that are not a part of our original proposal: Doctor can modify the payment ammount for the patient while patient can only see the deadline of pay the payment and payment ammount. 
 
 Two chosen web pages that are the most interesting:
 
