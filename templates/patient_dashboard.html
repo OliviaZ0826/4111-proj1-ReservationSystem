@@ -8,7 +8,6 @@
 <body>
     <a href="/">Home</a>
     <h1>Patient Dashboard</h1>
-    
     <!-- Display patient-specific information retrieved from the database -->
     <p>Welcome,  {{ patient_info[2] }}!</p>
 
@@ -98,6 +97,17 @@
 
     <div>
         <h2>Book an Appointment</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
         <form action="{{ url_for('book_appointment', user_id=patient_info[1]) }}" method="post">
             <label for="doctor">Choose a Doctor:</label>
             <select name="doctor_id" id="doctor">

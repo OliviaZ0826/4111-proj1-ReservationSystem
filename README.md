@@ -19,18 +19,18 @@ Doctor Interaction:
 Doctors are able to visualize their schedules and patient appointments in a dashboard after login. This feature ensures that they remain organized and informed about their clinical commitments. In addition, doctors also have access to comprehensive patient information, including medical records and insurance details, enabling them to provide personalized care.
 
 
-## The parts we are achieved in Part 3:
+## The parts we achieved in Part 3:
 
 Patient Interaction:
 Patients will first register a user account for the reservation system. During this registration process, they will provide personal details such as their name, date of birth, email, pertinent medical history and insurance. Then patients will get their unique patient id. After that, patients can search for doctors based on department, specialty and proceed to schedule appointments according to their preferences. Furthermore, patients can keep track of their appointments, with access to comprehensive details, including the doctor's name, available appointment time, and status.
 
 Doctor Interaction:
-Doctors are able to visualize their schedules and patient appointments in a dashboard after login. This feature ensures that they remain organized and informed about their clinical commitments. In addition, doctors also have access to comprehensive patient information, including medical records and insurance details, enabling them to provide personalized care.
+Doctors are able to visualize their schedules and patient appointments in a dashboard after login. This feature ensures that they remain organized and informed about their clinical commitments.
 
 
 ## The parts that we choose not to use in Part 3:
 
-Patient Interaction: During the payment process, patients are allowed to make payments through the platform linked with their insurance information conveniently. For patient, we find it hard to implement payment through the platform which is not a part of our course's focus. Also, we do not include pertinent medical history because those information should be asked during the appointment time and sometimes it is private to the patient so that we decide not to include in our patient profile.
+Patient Interaction: During the payment process, patients are allowed to make payments through the platform linked with their insurance information conveniently. For patient, we find it hard to implement payment through the platform which is not a part of our course's focus. Also, we do not include patient medical history because those information should be asked during the appointment time and sometimes it is private to the patient so that we decide not to include in our patient profile.
 Doctor Interaction: None.
 
 
@@ -71,7 +71,7 @@ Patient Payments:
 
 ## Usage of the AI tools in Part 3:
 
-Basically, we are using Chatgpt for generating python syntax of the overall project. We also use Chatgpt to generate basic UI elements like checkboxes, menus, or radio buttons to interact with the database. 
+Basically, we are using Chatgpt for generating python syntax of the overall project. For example, we ask the usage of new Python library such as flask, os and datetime. We also ask Chatgpt to help us debug and figure our the mistakes we made when utilize flask. We use Chatgpt to generate basic UI elements like checkboxes, menus, or radio buttons to interact with the database. 
 
 
 

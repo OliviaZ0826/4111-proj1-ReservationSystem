@@ -355,6 +355,19 @@ def book_appointment(user_id):
     appointment_datetime = datetime.strptime(f"{appointment_date} {appointment_time}", "%Y-%m-%d %H:%M %p")
     formatted_appointment_datetime = appointment_datetime.strftime("%Y-%m-%d %H:%M:%S")
 
+    if appointment_datetime < datetime.now():
+      flash("Cannot make an appointment in the past. Please choose a future time.", "error")
+      return redirect('/patient_dashboard/{}'.format(user_id))
+    
+    check_appointment_query = text("""SELECT COUNT(*) FROM Holds
+                                      JOIN Appointment ON Holds.AppointmentID = Appointment.AppointmentID
+                                      WHERE Holds.DoctorID = :doctor_id AND Appointment.AppointmentDateTime = :time""")
+    existing_appointments = g.conn.execute(check_appointment_query, {'doctor_id': doctor_id, 'time': formatted_appointment_datetime}).scalar()
+    
+    if existing_appointments > 0:
+      flash("Appointment time conflict. Please choose another time.", "error")
+      return redirect('/patient_dashboard/{}'.format(user_id))
+    
     # Create a new appointment
     insert_appointment_query = text("""INSERT INTO Appointment (AppointmentDateTime, Status) VALUES (:time, 'Scheduled')
                                       RETURNING AppointmentID""")
@@ -424,10 +437,10 @@ def doctor_dashboard(user_id):
 
     ID_query = text("""SELECT D.DoctorID FROM doctor_wksin_account D WHERE D.UserID = :user_id""")
     doctor_id = g.conn.execute(ID_query, {'user_id': user_id}).fetchone()
-    app_query = text("SELECT P.Patient_Name, P.Email, I.InsuranceID, A.AppointmentDateTime, A.Status \
-                      FROM Holds H, Appointment A, patient_assigned_account P, with_insurance I \
+    app_query = text("SELECT P.Patient_Name, P.Email, A.AppointmentDateTime, A.Status \
+                      FROM Holds H, Appointment A, patient_assigned_account P \
                       WHERE H.DoctorID = :doctor_id AND H.AppointmentID = A.AppointmentID \
-                      AND P.PatientID = H.PatientID AND I.PatientID = P.PatientID")
+                      AND P.PatientID = H.PatientID")
     app_info = g.conn.execute(app_query, {'doctor_id': doctor_id[0]}).fetchall()
 
     print(app_info)
