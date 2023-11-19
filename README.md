@@ -2,7 +2,7 @@
 
 ### Contributers: Lanyue Zhang, Zining Yin
 
-### URL of the app:?????
+### URL of the app:http://34.139.49.247:8111/
 
 ### PostgreSQL account: zy2605
 
