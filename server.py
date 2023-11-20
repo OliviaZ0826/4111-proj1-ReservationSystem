@@ -393,6 +393,12 @@ def add_insurance(user_id):
     company = request.form['company']
     cover = request.form['cover']
 
+    try:
+      insurance_id = int(insurance_id)
+    except ValueError:
+      flash("Invalid insurance ID. It must be an integer.", "error")
+      return redirect('/add_insurance/{}'.format(user_id))
+
     # need to modify the sql schema to general IDs automatically
     try:
       queryID = text("""SELECT P.PatientID FROM patient_assigned_account P WHERE P.UserID = :user_id""")
@@ -406,9 +412,10 @@ def add_insurance(user_id):
       return redirect('/patient_dashboard/{}'.format(user_id))
     except Exception as e:
       print(e)
-      return redirect('/add_insurance/{}'.format(user_id))
+      print(user_id)
+      return redirect('/patient_dashboard/{}'.format(user_id))
 
-  return render_template('add_insurance.html')
+  return redirect('/patient_dashboard/{}'.format(user_id))
 
 @app.route('/delete_insurance/<int:insurance_id>', methods=['POST'])
 def delete_insurance(insurance_id):
